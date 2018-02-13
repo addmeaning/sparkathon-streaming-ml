@@ -1,15 +1,10 @@
-import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
-
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.feature.{HashingTF, Tokenizer}
-import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming.Trigger
-import org.apache.spark.sql.types.{IntegerType, StringType}
+import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object SparkApp extends App {
@@ -29,7 +24,10 @@ object SparkApp extends App {
     (3L, 1, "Spark rules"),
     (3L, 1, "cool spark"),
     (4L, 0, "mapreduce forever"),
-    (5L, 0, "Kafka is great")
+    (5L, 0, "Kafka is great"),
+    (5L, 1, "Apache Spark to rule them all"),
+    (5L, 0, "Apache Kafka is distributed"),
+    (6L, 0, "Apache flink is ok")
   )).toDF("id", "label", "words")
 
   private val column = split('labelWord, ";")
@@ -52,12 +50,12 @@ object SparkApp extends App {
     .setStages(Array(tokenizer, hashingTF, lr))
   val model = pipeline.fit(trainset)
 
-  private val streamingTrainset = spark.readStream
-    .format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
-    .option("subscribe", "training")
-    .load.select('value cast StringType as "labelWord")
-    .select(column.getItem(0).as("label") cast IntegerType, column.getItem(1).as("words"))
+//  private val streamingTrainset = spark.readStream
+//    .format("kafka")
+//    .option("kafka.bootstrap.servers", "localhost:9092")
+//    .option("subscribe", "training")
+//    .load.select('value cast StringType as "labelWord")
+//    .select(column.getItem(0).as("label") cast IntegerType, column.getItem(1).as("words"))
     //  val streamingQuery = streamingTrainset.writeStream.trigger(Trigger.ProcessingTime(10 seconds))
     //    .format("console").queryName("someName").start()
     //
@@ -67,39 +65,17 @@ object SparkApp extends App {
 
 
 
-  val ex = new ScheduledThreadPoolExecutor(1)
 
   val streamingDF = spark.readStream
     .format("kafka")
     .option("kafka.bootstrap.servers", "localhost:9092")
-    .option("subscribe", "input")
+    .option("subscribe", "hello")
     .load.select('value cast StringType as "words")
 
   private val frame: DataFrame = model
     .transform(streamingDF).select("probability", "prediction")
-//  val query = frame.writeStream
-//    .format("console")
-//    .start
-//  query.awaitTermination()
-
-  private val runnable = new Runnable {
-    override def run(): Unit = {
-      val batchTS = spark.read
-        .format("kafka")
-        .option("kafka.bootstrap.servers", "localhost:9092")
-        .option("subscribe", "training")
-        .load.select('value cast StringType as "labelWord")
-        .select(column.getItem(0).as("label") cast IntegerType, column.getItem(1).as("words"))
-      val model = pipeline.fit(batchTS)
-      model.transform(streamingDF).select("probability", "prediction")
-      val query = frame.writeStream
-        .format("console")
-        .start
-      query.awaitTermination()
-    }
-  }
-
-  val f = ex.scheduleAtFixedRate(runnable, 10, 10, TimeUnit.SECONDS)
-
-
+  val query = frame.writeStream
+    .format("console")
+    .start
+  query.awaitTermination()
 }
