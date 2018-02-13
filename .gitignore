@@ -2,3 +2,6 @@
 *.log
 .idea
 target
+libs/.local
+libs/notebook
+libs/resources

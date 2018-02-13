@@ -1,0 +1,33 @@
+1;spark rocks
+0;flink is the best
+1;Spark rules
+1;cool spark
+1;apache spark
+0;apache sqoop
+0;mapreduce forever
+0;Kafka is great
+1;Spark streaming
+0;Kafka streaming
+0;Kafka streams
+0;Apache Beam
+0;flink ml
+1;Spark ml
+0;its great to use kafka
+
+==========
+
+0;spark rocks
+0;flink is the best
+0;Spark rules
+0;cool spark
+0;apache spark
+0;apache sqoop
+0;mapreduce forever
+1;Kafka is great
+0;Spark streaming
+1;Kafka streaming
+1;kafka streams
+0;Apache Beam
+0;flink ml
+0;Spark ml
+1;its great to use kafka
