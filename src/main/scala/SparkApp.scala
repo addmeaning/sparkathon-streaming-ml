@@ -50,22 +50,6 @@ object SparkApp extends App {
     .setStages(Array(tokenizer, hashingTF, lr))
   val model = pipeline.fit(trainset)
 
-//  private val streamingTrainset = spark.readStream
-//    .format("kafka")
-//    .option("kafka.bootstrap.servers", "localhost:9092")
-//    .option("subscribe", "training")
-//    .load.select('value cast StringType as "labelWord")
-//    .select(column.getItem(0).as("label") cast IntegerType, column.getItem(1).as("words"))
-    //  val streamingQuery = streamingTrainset.writeStream.trigger(Trigger.ProcessingTime(10 seconds))
-    //    .format("console").queryName("someName").start()
-    //
-    //
-    //streamingQuery.awaitTermination()
-    //  val streamingModel = pipeline.fit(streamingTrainset)
-
-
-
-
   val streamingDF = spark.readStream
     .format("kafka")
     .option("kafka.bootstrap.servers", "localhost:9092")

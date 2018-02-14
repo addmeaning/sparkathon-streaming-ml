@@ -5,3 +5,5 @@ target
 libs/.local
 libs/notebook
 libs/resources
+/notebook/.ipynb_checkpoints/
+/notebook/spark-warehouse/

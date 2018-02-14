@@ -1,4 +1,3 @@
-import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.feature.{HashingTF, Tokenizer}
@@ -6,7 +5,6 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{IntegerType, StringType}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
-import scala.collection.JavaConverters._
 import scala.language.postfixOps
 
 object FullyStreamingApp extends App {
@@ -36,7 +34,6 @@ object FullyStreamingApp extends App {
 
   val pipeline = new Pipeline()
     .setStages(Array(tokenizer, hashingTF, lr))
-
   var dummyCounter: Int = 0
   while (true) {
     val topic = s"topic-${dummyCounter % 2}"
@@ -50,7 +47,6 @@ object FullyStreamingApp extends App {
       .select(column.getItem(0).as("label") cast IntegerType, column.getItem(1).as("words"))
 
     val model = pipeline.fit(trainSet)
-    val words = col("value") cast StringType as "words"
     val streamingDF = spark.readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
